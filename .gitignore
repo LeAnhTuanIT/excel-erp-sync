@@ -1,0 +1,13 @@
+.env
+bin/
+obj/
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+out/
+*.user
+.vs/
+.vscode/
+.idea/
+~$*.xlsx

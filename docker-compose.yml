@@ -1,0 +1,34 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${SA_PASSWORD:-Your_strong_Passw0rd}
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+      - ./erp-api/sql:/sql:ro
+
+  erp-api:
+    build: ./erp-api
+    environment:
+      ConnectionStrings__ErpDb: "Server=sqlserver,1433;Database=ErpCore;User Id=sa;Password=${SA_PASSWORD:-Your_strong_Passw0rd};TrustServerCertificate=True"
+      Security__ApiKey: ${ERP_API_KEY:-dev-api-key-change-me}
+    ports:
+      - "5080:8080"
+    depends_on:
+      - sqlserver
+
+  etl:
+    build: ./etl
+    environment:
+      ERP_API_URL: http://erp-api:8080
+      ERP_API_KEY: ${ERP_API_KEY:-dev-api-key-change-me}
+    ports:
+      - "8000:8000"
+    depends_on:
+      - erp-api
+
+volumes:
+  mssql-data:
